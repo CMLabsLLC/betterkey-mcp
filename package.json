@@ -1,0 +1,41 @@
+{
+  "name": "@betterkey/mcp",
+  "version": "0.1.0",
+  "description": "Model Context Protocol (MCP) server exposing BetterKey vehicle data to AI agents (read-only).",
+  "type": "module",
+  "bin": {
+    "betterkey-mcp": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "test": "node --test --import tsx $(find src -name '*.test.ts')",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CMLabsLLC/betterkey",
+    "directory": "mcp/betterkey-mcp"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
