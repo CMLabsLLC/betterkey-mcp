@@ -44,9 +44,15 @@ export function registerVehicleCommand(
             try {
                 const vehicleId = encodeURIComponent(args.vehicle_id);
                 const result = await client.postWithHeaders<CommandResponseShape>(path(vehicleId));
+                // Fail-safe: when the backend returns 2xx but gives us no explicit
+                // confirmation marker (neither the x-command-confirmation header nor
+                // the body.confirmation field), surface "unconfirmed" rather than
+                // defaulting to "confirmed". The product promise is that the agent
+                // reports uncertainty honestly; defaulting to confirmed on a missing
+                // marker would silently violate that if backend contract ever drifts.
                 const confirmation =
                     result.headers["x-command-confirmation"] ??
-                    (typeof result.body.confirmation === "string" ? result.body.confirmation : "confirmed");
+                    (typeof result.body.confirmation === "string" ? result.body.confirmation : "unconfirmed");
                 const output = {
                     status: result.body.status ?? "success",
                     command,

@@ -67,6 +67,12 @@ describe("BetterKeyClient.postWithHeaders", () => {
         assert.equal(res.headers["x-operation-id"], "vehicle:u:v1");
         assert.ok(!("set-cookie" in res.headers), "set-cookie must not be exposed to tool output");
     });
+
+    it("sets redirect:error so a cross-origin 3xx cannot strip the Authorization header", async () => {
+        const client = new BetterKeyClient({ apiKey: "bk_xyz", baseUrl: "http://local" });
+        await client.postWithHeaders<unknown>("/v1/vehicles/v1/lock");
+        assert.equal((calls[0]?.init as RequestInit).redirect, "error");
+    });
 });
 
 describe("BetterKeyClient command errors", () => {

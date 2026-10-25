@@ -152,7 +152,10 @@ describe("registerVehicleCommand confirmation surfacing", () => {
         assert.equal(payload["confirmation"], "unconfirmed");
     });
 
-    it("defaults to confirmed when neither header nor body field is present", async () => {
+    it("defaults to unconfirmed when neither header nor body field is present (fail-safe)", async () => {
+        // The backend currently always sets at least one of these on a 2xx response,
+        // but if that contract ever drifts, defaulting to "confirmed" would silently
+        // misreport an unknown state as success. "unconfirmed" is the honest default.
         installFetchStub(() => ({
             status: 200,
             body: { status: "success", vehicleId: "v1", command: "lock" },
@@ -163,7 +166,7 @@ describe("registerVehicleCommand confirmation surfacing", () => {
         registerVehicleCommand(server, client, lockOptions);
         const result = await tools[0]!.handler({ vehicle_id: "v1" });
         const payload = JSON.parse(result.content[0]!.text) as Record<string, unknown>;
-        assert.equal(payload["confirmation"], "confirmed");
+        assert.equal(payload["confirmation"], "unconfirmed");
     });
 });
 

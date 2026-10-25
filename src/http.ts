@@ -111,6 +111,11 @@ export class BetterKeyClient {
                 headers,
                 body: serializedBody,
                 signal: controller.signal,
+                // Fail hard on any 3xx. WHATWG fetch would otherwise follow redirects
+                // and strip the Authorization header on cross-origin hops, surfacing
+                // as a confusing 401 somewhere downstream. The backend never redirects
+                // today, so flagging a redirect explicitly is the right failure mode.
+                redirect: "error",
             });
         } catch (err) {
             clearTimeout(timer);
