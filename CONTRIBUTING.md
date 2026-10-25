@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in `@betterkey/mcp`.
+Thanks for your interest in `betterkey-mcp`.
 
 This repository is actively maintained by [BetterKey](https://betterkey.xyz). The six tools exposed here are tightly coupled to the shape of the BetterKey HTTP API, so most feature work needs a coordinated change on the server side first.
 
@@ -9,7 +9,7 @@ This repository is actively maintained by [BetterKey](https://betterkey.xyz). Th
 Bug reports and feature requests are welcome. Please include:
 
 - The MCP host (Claude Desktop, Zed, custom, etc.) and its version.
-- The output of `npx -y @betterkey/mcp --version` (or your pinned version).
+- The output of `npx -y betterkey-mcp --version` (or your pinned version).
 - `BETTERKEY_API_BASE` if you're pointing somewhere other than production.
 - Enough of a transcript to reproduce the behavior. The server never logs your API key or vehicle coordinates; redact any output you don't want public before pasting.
 

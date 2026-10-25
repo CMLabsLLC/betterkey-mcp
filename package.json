@@ -1,5 +1,6 @@
 {
-  "name": "@betterkey/mcp",
+  "name": "betterkey-mcp",
+  "author": "CMLabs LLC",
   "version": "0.1.0",
   "description": "Model Context Protocol (MCP) server exposing BetterKey vehicle data and commands to AI agents.",
   "type": "module",
@@ -48,8 +49,5 @@
     "smartcar",
     "ai-agent"
   ],
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  }
+  "license": "MIT"
 }

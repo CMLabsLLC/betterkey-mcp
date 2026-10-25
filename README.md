@@ -1,4 +1,4 @@
-# @betterkey/mcp
+# betterkey-mcp
 
 [Model Context Protocol](https://modelcontextprotocol.io) server that lets AI agents inspect **and act on** your [BetterKey](https://betterkey.xyz)-connected vehicles.
 
@@ -41,7 +41,7 @@ Open the BetterKey app on iOS → **Settings → API Keys → Create**. Copy the
   "mcpServers": {
     "betterkey": {
       "command": "npx",
-      "args": ["-y", "@betterkey/mcp"],
+      "args": ["-y", "betterkey-mcp"],
       "env": {
         "BETTERKEY_API_KEY": "bk_...",
         "BETTERKEY_API_BASE": "https://api.betterkey.xyz"
