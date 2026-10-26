@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { type BetterKeyClient } from "../http.js";
+import { COMMAND_TIMEOUT_MS, type BetterKeyClient } from "../http.js";
 import { toolErrorResult } from "./list_vehicles.js";
 
 const LocationResponse = z.object({
@@ -30,7 +30,14 @@ export function registerGetVehicleLocation(server: McpServer, client: BetterKeyC
         async (args) => {
             try {
                 const vehicleId = encodeURIComponent(args.vehicle_id);
-                const raw = await client.get<unknown>(`/v1/vehicles/${vehicleId}/location`);
+                // Location is a snapshot read on the server, but it blocks on the OEM through
+                // Smartcar the same way lock/unlock do, so it gets the command timeout rather
+                // than the shorter read deadline.
+                const raw = await client.get<unknown>(
+                    `/v1/vehicles/${vehicleId}/location`,
+                    undefined,
+                    { timeoutMs: COMMAND_TIMEOUT_MS },
+                );
                 const parsed = LocationResponse.parse(raw);
                 return {
                     content: [
