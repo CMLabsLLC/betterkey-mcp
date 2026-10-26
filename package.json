@@ -1,7 +1,7 @@
 {
   "name": "betterkey-mcp",
   "author": "CMLabs LLC",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Model Context Protocol (MCP) server exposing BetterKey vehicle data and commands to AI agents.",
   "type": "module",
   "bin": {
