@@ -10,8 +10,8 @@ import { registerUnlockVehicle } from "./tools/unlock_vehicle.js";
 import { registerGetVehicleLocation } from "./tools/get_vehicle_location.js";
 
 const SERVER_NAME = "betterkey-mcp";
-const SERVER_VERSION = "0.1.0";
-const DEFAULT_API_BASE = "https://api.betterkey.xyz";
+const SERVER_VERSION = "0.1.2";
+const DEFAULT_API_BASE = "https://betterkey.xyz";
 
 async function main(): Promise<void> {
     const apiKey = process.env.BETTERKEY_API_KEY;

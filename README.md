@@ -43,8 +43,7 @@ Open the BetterKey app on iOS → **Settings → API Keys → Create**. Copy the
       "command": "npx",
       "args": ["-y", "betterkey-mcp"],
       "env": {
-        "BETTERKEY_API_KEY": "bk_...",
-        "BETTERKEY_API_BASE": "https://api.betterkey.xyz"
+        "BETTERKEY_API_KEY": "bk_..."
       }
     }
   }
@@ -66,7 +65,7 @@ Restart Claude Desktop. The six tools should appear in the tool palette.
 | Variable | Required | Default | Description |
 |---|---|---|---|
 | `BETTERKEY_API_KEY` | yes | *(none)* | A `bk_...` secret from the BetterKey app. The server refuses to start without one. |
-| `BETTERKEY_API_BASE` | no | `https://api.betterkey.xyz` | Point at `https://api-staging.betterkey.xyz` for staging, or `http://localhost:8080` when developing against a local BetterKey backend. |
+| `BETTERKEY_API_BASE` | no | `https://betterkey.xyz` | Point at `https://staging.betterkey.xyz` for staging, or `http://localhost:8080` when developing against a local BetterKey backend. |
 
 ## Revoking access
 
