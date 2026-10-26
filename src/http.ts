@@ -29,7 +29,23 @@ export class BetterKeyApiError extends Error {
     }
 }
 
-const DEFAULT_TIMEOUT_MS = 20_000;
+// READ_TIMEOUT_MS covers cheap backend reads that don't touch Smartcar (list_vehicles,
+// cached telemetry snapshots). COMMAND_TIMEOUT_MS covers calls that block on a real
+// round-trip to the OEM through Smartcar — lock, unlock, and the live location read —
+// which routinely take longer than the read deadline. Collapsing these back to a single
+// global 20s would reintroduce the user-visible "timeout even though the car actuated"
+// bug the per-tool deadlines were added to fix.
+export const READ_TIMEOUT_MS = 20_000;
+export const COMMAND_TIMEOUT_MS = 60_000;
+
+const DEFAULT_TIMEOUT_MS = READ_TIMEOUT_MS;
+
+export interface RequestOptions {
+    // Per-call timeout override in milliseconds. When unset, the client's default (set at
+    // construction, falling back to READ_TIMEOUT_MS) is used. See READ_TIMEOUT_MS /
+    // COMMAND_TIMEOUT_MS for the two documented values.
+    timeoutMs?: number;
+}
 
 export class BetterKeyClient {
     private readonly apiKey: string;
@@ -50,22 +66,30 @@ export class BetterKeyClient {
         this.timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     }
 
-    async get<T>(path: string, query?: Record<string, string | boolean | undefined>): Promise<T> {
+    async get<T>(
+        path: string,
+        query?: Record<string, string | boolean | undefined>,
+        opts?: RequestOptions,
+    ): Promise<T> {
         const url = this.buildUrl(path, query);
-        return this.request<T>("GET", url);
+        return this.request<T>("GET", url, undefined, opts);
     }
 
-    async post<T>(path: string, body?: unknown): Promise<T> {
+    async post<T>(path: string, body?: unknown, opts?: RequestOptions): Promise<T> {
         const url = this.buildUrl(path);
-        return this.request<T>("POST", url, body);
+        return this.request<T>("POST", url, body, opts);
     }
 
     // postWithHeaders exposes a few response headers alongside the parsed body so a tool
     // that cares about X-Command-Confirmation ("confirmed" vs "unconfirmed") or
     // X-Operation-Id (for idempotency debugging) can surface them without a second call.
-    async postWithHeaders<T>(path: string, body?: unknown): Promise<{ body: T; headers: Record<string, string> }> {
+    async postWithHeaders<T>(
+        path: string,
+        body?: unknown,
+        opts?: RequestOptions,
+    ): Promise<{ body: T; headers: Record<string, string> }> {
         const url = this.buildUrl(path);
-        return this.requestWithHeaders<T>("POST", url, body);
+        return this.requestWithHeaders<T>("POST", url, body, opts);
     }
 
     private buildUrl(path: string, query?: Record<string, string | boolean | undefined>): string {
@@ -82,8 +106,8 @@ export class BetterKeyClient {
         return url.toString();
     }
 
-    private async request<T>(method: string, url: string, body?: unknown): Promise<T> {
-        const result = await this.requestWithHeaders<T>(method, url, body);
+    private async request<T>(method: string, url: string, body?: unknown, opts?: RequestOptions): Promise<T> {
+        const result = await this.requestWithHeaders<T>(method, url, body, opts);
         return result.body;
     }
 
@@ -91,9 +115,11 @@ export class BetterKeyClient {
         method: string,
         url: string,
         body?: unknown,
+        opts?: RequestOptions,
     ): Promise<{ body: T; headers: Record<string, string> }> {
+        const timeoutMs = opts?.timeoutMs ?? this.timeoutMs;
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
         const headers: Record<string, string> = {
             Authorization: `Bearer ${this.apiKey}`,
             Accept: "application/json",
@@ -120,7 +146,7 @@ export class BetterKeyClient {
         } catch (err) {
             clearTimeout(timer);
             if (err instanceof Error && err.name === "AbortError") {
-                throw new BetterKeyApiError(0, "timeout", `Request timed out after ${this.timeoutMs}ms`, {});
+                throw new BetterKeyApiError(0, "timeout", `Request timed out after ${timeoutMs}ms`, {});
             }
             const msg = err instanceof Error ? err.message : String(err);
             throw new BetterKeyApiError(0, "network", redactApiKey(msg, this.apiKey), {});
